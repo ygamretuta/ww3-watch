@@ -3,9 +3,17 @@
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["ES2023"],
-    "types": ["node"],
+    "lib": [
+      "ES2023"
+    ],
+    "types": [
+      "node"
+    ],
     "noEmit": true
   },
-  "include": ["src/server", "src/shared"]
+  "include": [
+    "src/server",
+    "src/shared",
+    "api"
+  ]
 }

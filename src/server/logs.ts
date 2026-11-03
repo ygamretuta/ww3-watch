@@ -5,7 +5,7 @@ import type { ScoredArticle } from './article.ts';
 import { similar, stems } from './cluster.ts';
 import { FLASHPOINTS } from './feeds.ts';
 import type { Analysis } from './analyze.ts';
-import { dataFile, readList, writeJson } from './paths.ts';
+import { readList, store } from './storage.ts';
 
 const HOUR = 3.6e6;
 const DAY = 24 * HOUR;
@@ -14,7 +14,7 @@ export const FP_IDS = FLASHPOINTS.map((f) => f.id);
 // ---------- history ----------
 // Points are {t, r: risk 0-1 (default model), s: [score per flashpoint, FLASHPOINTS order]}.
 // Full resolution for 7 days, then thinned (one per 6h to 60d, one per day to 1 year).
-const HISTORY_FILE = dataFile('history.json');
+const HISTORY_FILE = 'history.json';
 
 function compactHistory(h: HistoryPoint[]): HistoryPoint[] {
   const now = Date.now();
@@ -31,25 +31,25 @@ function compactHistory(h: HistoryPoint[]): HistoryPoint[] {
   return out;
 }
 
-export function recordHistory(analysis: Pick<Analysis, 'risk' | 'flashpoints'>): History {
-  let h = readList<HistoryPoint>(HISTORY_FILE);
+export async function recordHistory(analysis: Pick<Analysis, 'risk' | 'flashpoints'>): Promise<History> {
+  let h = await readList<HistoryPoint>(HISTORY_FILE);
   const last = h[h.length - 1];
   if (!last || Date.now() - last.t > 25 * 60 * 1000) {
     const byId = new Map(analysis.flashpoints.map((f) => [f.id, f.score]));
     h.push({ t: Date.now(), r: analysis.risk, s: FP_IDS.map((id) => byId.get(id) ?? 0) });
     h = compactHistory(h);
-    writeJson(HISTORY_FILE, h);
+    await store.write(HISTORY_FILE, h);
   }
   // old points (from before scores were stored) have no `s`; consumers tolerate that
   return { ids: FP_IDS, points: h };
 }
 
 // ---------- event log: big stories are remembered so the timeline outlives the feeds ----------
-const EVENTS_FILE = dataFile('events.json');
-export const loadEvents = (): EventRec[] => readList<EventRec>(EVENTS_FILE);
+const EVENTS_FILE = 'events.json';
+export const loadEvents = (): Promise<EventRec[]> => readList<EventRec>(EVENTS_FILE);
 
-export function recordEvents(articles: ScoredArticle[]): EventRec[] {
-  let ev = loadEvents();
+export async function recordEvents(articles: ScoredArticle[]): Promise<EventRec[]> {
+  let ev = await loadEvents();
   let dirty = false;
   for (const a of articles) {
     // major = high severity (corroborated or AI-rated), or moderately severe but widely reported
@@ -73,16 +73,16 @@ export function recordEvents(articles: ScoredArticle[]): EventRec[] {
   }
   if (dirty) {
     ev = ev.filter((e) => Date.now() - e.t < 365 * DAY).sort((x, y) => y.t - x.t).slice(0, 800);
-    writeJson(EVENTS_FILE, ev);
+    await store.write(EVENTS_FILE, ev);
   }
   return ev.slice(0, 80);
 }
 
 // ---------- wins log: notable de-escalation / humanitarian stories, kept for a year ----------
-const WINS_FILE = dataFile('wins.json');
+const WINS_FILE = 'wins.json';
 
-export function recordWins(goods: ScoredArticle[]): WinRec[] {
-  let ev = readList<WinRec>(WINS_FILE);
+export async function recordWins(goods: ScoredArticle[]): Promise<WinRec[]> {
+  let ev = await readList<WinRec>(WINS_FILE);
   let dirty = false;
   for (const a of goods) {
     const notable = (a.relief >= 0.6 && (a.count > 1 || a.method === 'llm')) || (a.relief >= 0.5 && a.count >= 3);
@@ -98,7 +98,7 @@ export function recordWins(goods: ScoredArticle[]): WinRec[] {
   }
   if (dirty) {
     ev = ev.filter((e) => Date.now() - e.t < 365 * DAY).sort((x, y) => y.t - x.t).slice(0, 800);
-    writeJson(WINS_FILE, ev);
+    await store.write(WINS_FILE, ev);
   }
   return ev.slice(0, 60);
 }

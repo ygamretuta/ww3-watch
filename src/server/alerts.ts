@@ -10,10 +10,10 @@
 // Config (env or .env): ALERT_WEBHOOK_URL, PUBLIC_URL (link included in webhook messages)
 
 import type { AlertRec, FlashpointApi, History, Level } from '../shared/types.ts';
-import { dataFile, readJson, readList, writeJson } from './paths.ts';
+import { readList, store } from './storage.ts';
 
-const STATE_FILE = dataFile('alert-state.json');
-const LOG_FILE = dataFile('alerts.json');
+const STATE_FILE = 'alert-state.json';
+const LOG_FILE = 'alerts.json';
 const HOUR = 3.6e6;
 const COOLDOWN = 6 * HOUR;
 const SPIKE = 8;
@@ -37,11 +37,11 @@ export interface AnalysisForAlerts {
 
 type NewAlert = Omit<AlertRec, 'id' | 't'>;
 
-export const loadAlerts = (): AlertRec[] => readList<AlertRec>(LOG_FILE);
+export const loadAlerts = (): Promise<AlertRec[]> => readList<AlertRec>(LOG_FILE);
 
-export function detect(analysis: AnalysisForAlerts, history: History): AlertRec[] {
+export async function detect(analysis: AnalysisForAlerts, history: History): Promise<AlertRec[]> {
   const now = Date.now();
-  const st = readJson<Partial<AlertState>>(STATE_FILE, {});
+  const st = await store.read<Partial<AlertState>>(STATE_FILE, {});
   const fpCooldown = st.fp ?? {};
   const lastScores = st.scores ?? {};
   const out: NewAlert[] = [];
@@ -92,10 +92,10 @@ export function detect(analysis: AnalysisForAlerts, history: History): AlertRec[
   }
 
   const state: AlertState = { level, risk: analysis.risk, fp: fpCooldown, scores: lastScores };
-  writeJson(STATE_FILE, state);
+  await store.write(STATE_FILE, state);
 
   const stamped: AlertRec[] = out.map((a, i) => ({ id: `${now}-${i}`, t: now, ...a }));
-  if (stamped.length) writeJson(LOG_FILE, loadAlerts().concat(stamped).slice(-100));
+  if (stamped.length) await store.write(LOG_FILE, (await loadAlerts()).concat(stamped).slice(-100));
   return stamped;
 }
 

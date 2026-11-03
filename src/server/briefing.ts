@@ -4,14 +4,14 @@
 
 import type { ApiData, BriefingRec, History, Level } from '../shared/types.ts';
 import { ask, llmEnabled } from './classify.ts';
-import { dataFile, readJson, writeJson } from './paths.ts';
+import { store } from './storage.ts';
 
-const FILE = dataFile('briefing.json');
+const FILE = 'briefing.json';
 const MAX_AGE = 20 * 3.6e6;
 
 export type BriefingInput = Omit<ApiData, 'briefing'>;
 
-export const load = (): BriefingRec | null => readJson<BriefingRec | null>(FILE, null);
+export const load = (): Promise<BriefingRec | null> => store.read<BriefingRec | null>(FILE, null);
 export const isStale = (b: BriefingRec | null): boolean => !b || Date.now() - b.t > MAX_AGE;
 
 function deltaVs24h(history: History, risk: number): number | null {
@@ -86,8 +86,8 @@ Format, plain text, about 150-200 words:
 5. A final sentence reminding the reader this is an automated heuristic, not a forecast.
 Tone: calm, precise, neutral. No alarmism, no speculation about outcomes, no markdown symbols other than leading hyphens.`;
 
-function save(b: BriefingRec): BriefingRec {
-  writeJson(FILE, b);
+async function save(b: BriefingRec): Promise<BriefingRec> {
+  await store.write(FILE, b);
   return b;
 }
 
@@ -97,11 +97,11 @@ export async function makeBriefing(data: BriefingInput): Promise<BriefingRec> {
     try {
       const model = process.env.WW3_BRIEFING_MODEL || process.env.WW3_MODEL || 'claude-sonnet-5-5';
       const text = (await ask(SYSTEM, JSON.stringify(snap), { model, maxTokens: 700 })).trim();
-      if (text) return save({ t: Date.now(), text, method: 'llm', model });
+      if (text) return await save({ t: Date.now(), text, method: 'llm', model });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      return save({ t: Date.now(), text: templateText(snap), method: 'template', note: 'AI briefing failed: ' + msg.slice(0, 120) });
+      return await save({ t: Date.now(), text: templateText(snap), method: 'template', note: 'AI briefing failed: ' + msg.slice(0, 120) });
     }
   }
-  return save({ t: Date.now(), text: templateText(snap), method: 'template' });
+  return await save({ t: Date.now(), text: templateText(snap), method: 'template' });
 }

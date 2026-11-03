@@ -11,7 +11,8 @@ import path from 'node:path';
 import type { ClassifierStatus, Kind } from '../shared/types.ts';
 import type { ClusteredArticle, LlmRating } from './article.ts';
 import type { FlashpointDef } from './feeds.ts';
-import { ROOT, dataFile, readJson, writeJson } from './paths.ts';
+import { ROOT } from './paths.ts';
+import { store } from './storage.ts';
 
 // tiny .env loader (no dependency)
 try {
@@ -24,13 +25,13 @@ try {
   // no .env file: fine
 }
 
-const CACHE_FILE = dataFile('llm-cache.json');
+const CACHE_FILE = 'llm-cache.json';
 const TTL = 7 * 24 * 3.6e6;
 const BATCH = 25;
 const MAX_NEW_PER_REFRESH = 150;
 const KINDS: Kind[] = ['ceasefire', 'diplomacy', 'aid', 'release', 'recovery'];
 
-const cache: Record<string, LlmRating> = readJson<Record<string, LlmRating>>(CACHE_FILE, {});
+let cache: Record<string, LlmRating> = {};
 
 const keyOf = (a: { title: string }): string => a.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 90);
 const status: ClassifierStatus = { enabled: false, model: '', classified: 0, fromCache: 0, errors: 0, lastError: '' };
@@ -135,6 +136,7 @@ export async function classify(articles: ClusteredArticle[], flashpoints: Flashp
   status.classified = 0; status.fromCache = 0; status.errors = 0; status.lastError = '';
   if (!status.enabled) return { ...status };
 
+  cache = await store.read<Record<string, LlmRating>>(CACHE_FILE, {});
   const now = Date.now();
   for (const [k, v] of Object.entries(cache)) if (now - v.t > TTL) delete cache[k];
 
@@ -158,6 +160,6 @@ export async function classify(articles: ClusteredArticle[], flashpoints: Flashp
     const rated = cache[keyOf(a)];
     if (rated) a.llm = rated;
   }
-  writeJson(CACHE_FILE, cache);
+  await store.write(CACHE_FILE, cache);
   return { ...status, pending: todo.length - fresh.length };
 }

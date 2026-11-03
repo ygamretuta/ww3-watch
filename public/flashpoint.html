@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashpoint · WW3 Watch</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="dot"></span>WW3 WATCH</div>
+  <div class="status" id="status"></div>
+  <a class="back" href="/">← Dashboard</a>
+</header>
+
+<main>
+  <section class="fp-head">
+    <div class="label" id="fp-sub">Flashpoint</div>
+    <h1 id="fp-name">Loading…</h1>
+    <div class="fp-score"><b id="fp-score">--</b><span>/ 100</span></div>
+    <div class="bar big"><div id="fp-bar"></div></div>
+    <div class="formula" id="fp-formula"></div>
+  </section>
+
+  <section>
+    <h2>Score history <small id="hist-note"></small></h2>
+    <div class="chart" id="chart"><svg id="hist" viewBox="0 0 800 160" preserveAspectRatio="none"></svg></div>
+  </section>
+
+  <section>
+    <h2>What is driving it <small>headlines adding the most heat</small></h2>
+    <ul class="drivers wide" id="drivers"></ul>
+  </section>
+
+  <section>
+    <h2>Timeline <small id="tl-note"></small></h2>
+    <ul class="timeline" id="timeline"></ul>
+  </section>
+
+  <section>
+    <h2>Coverage <small id="cov-note"></small></h2>
+    <ul class="news" id="news"></ul>
+  </section>
+
+  <section>
+    <h2>Sources <small id="src-note"></small></h2>
+    <div class="srcs" id="outlets"></div>
+  </section>
+</main>
+<footer id="foot">Heuristic index built from public headlines. It is not a forecast.</footer>
+<script type="module" src="js/client/flashpoint.js"></script>
+</body>
+</html>

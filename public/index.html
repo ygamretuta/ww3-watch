@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WW3 Watch</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="split-page">
+<header class="top">
+  <div class="brand"><span class="dot"></span>WW3 WATCH</div>
+  <div class="status" id="status">Connecting to feeds…</div>
+  <button id="refresh" title="Re-fetch all feeds">Refresh</button>
+</header>
+
+<div class="split" id="split">
+<div class="pane dark" id="pane-dark">
+<main>
+  <div class="pane-tag">Escalation watch</div>
+  <section class="clock" id="clock">
+    <div class="label">Estimated time to global conflict threshold</div>
+    <div class="digits" id="digits" aria-live="off">
+      <div><b id="d-y">--</b><span>years</span></div>
+      <i>:</i>
+      <div><b id="d-d">---</b><span>days</span></div>
+      <i>:</i>
+      <div><b id="d-h">--</b><span>hours</span></div>
+      <i>:</i>
+      <div><b id="d-m">--</b><span>min</span></div>
+      <i>:</i>
+      <div><b id="d-s">--</b><span>sec</span></div>
+    </div>
+    <div class="meter">
+      <div class="meter-bar"><div id="meter-fill"></div></div>
+      <div class="meter-row">
+        <span>Risk index <b id="risk-pct">--</b> <em id="custom" class="custom" hidden>custom model</em></span>
+        <span class="level" id="level">--</span>
+      </div>
+      <div class="delta" id="delta"></div>
+      <a class="delaynote" id="delay-note" href="#pane-light" hidden></a>
+    </div>
+    <p class="disclaimer">Symbolic, heuristic index built from public headlines and editable baseline weights. It is not a forecast.</p>
+    <details class="vs" id="vs">
+      <summary id="vs-sum">Doomsday Clock</summary>
+      <div class="vs-body" id="vs-body"></div>
+    </details>
+  </section>
+
+  <section>
+    <h2>Daily briefing <small id="brief-meta"></small></h2>
+    <div class="brief" id="brief"></div>
+    <button id="brief-regen" class="ghost">Regenerate</button>
+  </section>
+
+  <section>
+    <h2>Alerts <small>level changes, flashpoint spikes and 75+ crossings</small></h2>
+    <div class="alert-actions">
+      <button id="notify-btn">Enable browser notifications</button>
+      <button id="notify-test" class="ghost" hidden>Send test</button>
+      <span class="dim small" id="notify-state"></span>
+    </div>
+    <ul class="alerts" id="alerts"></ul>
+    <p class="dim small" id="webhook-note"></p>
+  </section>
+
+  <section>
+    <h2>Hot spots <small>pin size and colour = current pressure · click a pin for details</small></h2>
+    <div class="mapwrap"><svg id="map" viewBox="0 0 180 72" role="img" aria-label="World map of flashpoints"></svg></div>
+    <div class="chips" id="globals"></div>
+  </section>
+
+  <section>
+    <h2>Flashpoints <small>ranked by pressure</small></h2>
+    <div class="grid" id="flashpoints"></div>
+  </section>
+
+  <section>
+    <details class="model">
+      <summary>Model settings <small>change the assumptions, the clock updates live</small></summary>
+      <p class="dim small">
+        <b>Baseline</b> is how dangerous a theatre is before today's news (0–100). <b>Weight</b> is how strongly that
+        theatre can drag the world into a great-power war. Changes stay in this browser only.
+      </p>
+      <p class="dim small">
+        Headlines from the same event are merged into one story. Each story's heat is scaled by source reliability
+        (state media and low-reliability outlets count half) and boosted when independent outlets corroborate it.
+      </p>
+      <div id="model-rows"></div>
+      <button id="reset">Reset to defaults</button>
+      <p class="dim small" id="classifier"></p>
+    </details>
+  </section>
+
+  <section>
+    <h2>Timeline <small id="tl-note"></small></h2>
+    <ul class="timeline" id="timeline"></ul>
+  </section>
+
+  <section>
+    <h2>Intel feed <small id="count"></small></h2>
+    <div class="chips" id="chips"></div>
+    <ul class="news" id="news"></ul>
+  </section>
+</main>
+<footer id="foot"></footer>
+</div>
+
+<div class="divider" id="divider" role="separator" aria-orientation="vertical" aria-label="Resize panes" aria-valuemin="25" aria-valuemax="75" aria-valuenow="50" tabindex="0" title="Drag to resize · double-click to reset"><i></i></div>
+
+<div class="pane light" id="pane-light">
+<main>
+  <div class="pane-tag">De-escalation watch</div>
+
+  <section class="clock" id="g-hero">
+    <div class="label">Time bought by de-escalation</div>
+    <div class="digits" aria-live="off">
+      <div><b id="g-d">---</b><span>days</span></div>
+      <i>:</i>
+      <div><b id="g-h">--</b><span>hours</span></div>
+      <i>:</i>
+      <div><b id="g-m">--</b><span>min</span></div>
+    </div>
+    <div class="meter">
+      <div class="meter-bar"><div id="g-fill"></div></div>
+      <div class="meter-row">
+        <span>Signal strength <b id="g-pct">--</b></span>
+        <span class="level" id="g-credit">--</span>
+      </div>
+      <div class="delta" id="g-without"></div>
+    </div>
+    <p class="disclaimer">Ceasefires, agreements, releases, aid deliveries and recovery news from the last 72 hours push the countdown back. Fresh stories count most. A deal announced today can still collapse tomorrow.</p>
+  </section>
+
+  <section>
+    <h2>Where diplomacy and aid are working <small>by theatre</small></h2>
+    <div class="theatres" id="g-theatres"></div>
+  </section>
+
+  <section>
+    <h2>Good news <small id="g-count"></small></h2>
+    <div class="chips" id="g-chips"></div>
+    <ul class="news" id="g-news"></ul>
+  </section>
+
+  <section>
+    <h2>Wins timeline <small id="g-tl-note"></small></h2>
+    <ul class="timeline" id="g-timeline"></ul>
+  </section>
+
+  <section>
+    <details class="model">
+      <summary>How much credit should good news get? <small>dial it</small></summary>
+      <p class="dim small">
+        At full signal strength, de-escalation takes this share off the risk index. The default is cautious:
+        peace news is real, but fragile. Changes stay in this browser only.
+      </p>
+      <div class="mrow credit-row">
+        <div class="mname">Maximum credit</div>
+        <label><span>Cap</span><input id="g-cap" type="range" min="0" max="40" step="1"><output id="g-cap-out"></output></label>
+        <button id="g-cap-reset" class="ghost">Reset</button>
+      </div>
+      <p class="dim small" id="g-sources"></p>
+    </details>
+  </section>
+</main>
+<footer>Good news is classified from headlines by AI when a key is set, and by keywords otherwise.</footer>
+</div>
+</div>
+
+<script type="module" src="js/client/main.js"></script>
+</body>
+</html>

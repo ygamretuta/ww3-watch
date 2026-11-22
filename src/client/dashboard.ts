@@ -68,6 +68,7 @@ export function renderFlashpoints(): void {
   const data = getData();
   const calc = getCalc();
   const order = data.flashpoints.map((f, i) => ({ f, i })).sort((a, b) => (calc.scores[b.i] ?? 0) - (calc.scores[a.i] ?? 0));
+  const moved = data.briefing?.lines ?? {};
   const open = new Set([...document.querySelectorAll<HTMLElement>('.card details[open]')].map((d) => d.dataset.id));
   $('flashpoints').replaceChildren(...order.map(({ f, i }) => {
     const score = calc.scores[i] ?? 0;
@@ -85,6 +86,7 @@ export function renderFlashpoints(): void {
       el('h3', {}, el('span', { textContent: f.name }), el('em', { textContent: String(score) })),
       el('div', { className: 'bar' }, fill),
       el('div', { className: 'meta', textContent: `news heat ${f.heat}% · ${f.mentions} headlines / 72h` }),
+      ...(moved[f.id] ? [el('p', { className: 'moved', textContent: moved[f.id] })] : []),
       list,
       why,
       el('a', { className: 'detail-link', href: `flashpoint.html?id=${encodeURIComponent(f.id)}`, target: '_blank', rel: 'noopener', textContent: 'Full timeline & sources →' }),

@@ -47,12 +47,6 @@
   </section>
 
   <section>
-    <h2>Daily briefing <small id="brief-meta"></small></h2>
-    <div class="brief" id="brief"></div>
-    <button id="brief-regen" class="ghost">Regenerate</button>
-  </section>
-
-  <section>
     <h2>Alerts <small>level changes, flashpoint spikes and 75+ crossings</small></h2>
     <div class="alert-actions">
       <button id="notify-btn">Enable browser notifications</button>
@@ -71,6 +65,14 @@
 
   <section>
     <h2>Flashpoints <small>ranked by pressure</small></h2>
+    <div class="brief" id="brief">
+      <p class="brief-head" id="brief-headline">Loading…</p>
+      <p class="brief-watch" id="brief-watch" hidden></p>
+      <div class="brief-foot">
+        <span class="dim small" id="brief-meta"></span>
+        <button id="brief-regen" class="ghost">Regenerate</button>
+      </div>
+    </div>
     <div class="grid" id="flashpoints"></div>
   </section>
 
@@ -129,6 +131,7 @@
       <div class="delta" id="g-without"></div>
     </div>
     <p class="disclaimer">Ceasefires, agreements, releases, aid deliveries and recovery news from the last 72 hours push the countdown back. Fresh stories count most. A deal announced today can still collapse tomorrow.</p>
+    <p class="g-brief" id="g-brief" hidden></p>
   </section>
 
   <section>

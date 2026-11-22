@@ -2,6 +2,8 @@
 
 import type { AlertRec, BriefingRec } from '../shared/types.ts';
 import { $, ago, el, errorMessage } from './dom.ts';
+import { renderFlashpoints } from './dashboard.ts';
+import { renderGoodBrief } from './good.ts';
 import { getData, state } from './state.ts';
 
 const NOTIFY_KEY = 'ww3-notify';
@@ -12,24 +14,17 @@ const store = {
 };
 
 // ---------- briefing ----------
+// The briefing is a headline strip above the flashpoint cards; its per-flashpoint lines are drawn
+// on the cards (dashboard.ts) and its de-escalation sentence in the light pane (good.ts).
 function renderBriefing(b: BriefingRec | null): void {
-  const box = $('brief');
-  if (!b) { box.textContent = 'No briefing yet.'; return; }
-  const kids: HTMLElement[] = [];
-  let list: HTMLUListElement | null = null;
-  for (const line of b.text.split('\n')) {
-    if (/^\s*[-•]\s+/.test(line)) {
-      if (!list) { list = el('ul'); kids.push(list); }
-      list.append(el('li', { textContent: line.replace(/^\s*[-•]\s+/, '') }));
-    } else {
-      list = null;
-      if (line.trim()) kids.push(el('p', { textContent: line.trim() }));
-    }
-  }
-  box.replaceChildren(...kids);
+  const watch = $('brief-watch');
+  if (!b) { $('brief-headline').textContent = 'No briefing yet.'; watch.hidden = true; $('brief-meta').textContent = ''; return; }
+  $('brief-headline').textContent = b.headline || b.text.split('\n')[0] || '';
+  watch.textContent = b.watch ?? '';
+  watch.hidden = !b.watch;
   const how = b.method === 'llm' ? `written by ${b.model}` : 'template summary · set ANTHROPIC_API_KEY for an AI-written one';
-  $('brief-meta').textContent = `${new Date(b.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} · ${how}`;
-  if (b.note) box.append(el('p', { className: 'dim small', textContent: b.note }));
+  const when = new Date(b.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  $('brief-meta').textContent = `Briefing ${when} · ${how}${b.note ? ' · ' + b.note : ''}`;
 }
 
 // ---------- notifications ----------
@@ -97,7 +92,11 @@ export function initAlerts(): void {
     try {
       const r = await fetch('/api/briefing?regen=1');
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      renderBriefing((await r.json()) as BriefingRec);
+      const fresh = (await r.json()) as BriefingRec;
+      if (state.data) state.data.briefing = fresh;
+      renderBriefing(fresh);
+      renderFlashpoints();
+      renderGoodBrief();
     } catch (e) {
       $('brief-meta').textContent = 'Could not regenerate: ' + errorMessage(e);
     } finally {

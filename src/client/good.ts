@@ -133,8 +133,16 @@ export function renderCreditDial(): void {
   $('g-sources').textContent = `Counting ${data.goodNews.total} stories from ${outlets.size} outlets in the last 72 hours. State-media and low-reliability outlets count half; stories fade with a 24-hour half-life.`;
 }
 
+/** The briefing's de-escalation sentence, under the light pane's clock. */
+export function renderGoodBrief(): void {
+  const text = getData().briefing?.deescalation ?? '';
+  const p = $('g-brief');
+  p.textContent = text;
+  p.hidden = !text;
+}
+
 export function renderGood(): void {
-  renderGoodHero(); renderTheatres(); renderGoodChips(); renderGoodNews(); renderWins(); renderCreditDial();
+  renderGoodBrief(); renderGoodHero(); renderTheatres(); renderGoodChips(); renderGoodNews(); renderWins(); renderCreditDial();
 }
 
 /** Wire up the credit dial. Call once at startup. */

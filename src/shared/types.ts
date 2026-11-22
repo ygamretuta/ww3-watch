@@ -158,6 +158,15 @@ export interface AlertRec {
 
 export interface BriefingRec {
   t: number;
+  /** Opening sentence: level, percentage, 24h change. */
+  headline: string;
+  /** "What to watch" line. */
+  watch: string;
+  /** Sentence on de-escalation and the time it adds; empty when there is none. */
+  deescalation: string;
+  /** One line per flashpoint id on why it moved (only the AI briefing writes these). */
+  lines: Record<string, string>;
+  /** The same content as plain text, for webhooks. */
   text: string;
   method: Method | 'template';
   model?: string;

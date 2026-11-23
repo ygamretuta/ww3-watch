@@ -3,7 +3,7 @@
 import type { AlertRec, BriefingRec } from '../shared/types.ts';
 import { $, ago, el, errorMessage } from './dom.ts';
 import { renderFlashpoints } from './dashboard.ts';
-import { renderGoodBrief } from './good.ts';
+import { renderGood } from './good.ts';
 import { getData, state } from './state.ts';
 
 const NOTIFY_KEY = 'ww3-notify';
@@ -100,7 +100,7 @@ export function initAlerts(): void {
       if (state.data) state.data.briefing = fresh;
       renderBriefing(fresh);
       renderFlashpoints();
-      renderGoodBrief();
+      renderGood();
     } catch (e) {
       $('brief-meta').textContent = 'Could not regenerate: ' + errorMessage(e);
     } finally {

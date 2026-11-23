@@ -54,39 +54,57 @@ export function openCard(id: string): void {
   setTimeout(() => card.classList.remove('flash'), 1600);
 }
 
-export function renderMap(): void {
-  const data = getData();
-  const calc = getCalc();
-  const svg = $<HTMLElement>('map') as unknown as SVGSVGElement;
+export interface Pin {
+  geo: [number, number];
+  r: number;
+  color: string;
+  label: string;
+  title: string;
+  ring?: boolean;
+  onActivate: () => void;
+}
+
+/** Draw the dotted world map with pins into an <svg viewBox="0 0 180 72">. */
+export function drawMap(svg: SVGSVGElement, pins: Pin[]): void {
   const g = WORLD_GRID;
   const land: string[] = [];
   g.rows.forEach((row, y) => {
     for (let x = 0; x < row.length; x++) if (row[x] === '1') land.push(`M${x} ${y}h.78v.78h-.78z`);
   });
   svg.replaceChildren(svgEl('path', { d: land.join(''), class: 'land' }));
-
-  const scoreOf = new Map(data.flashpoints.map((f, i) => [f.id, calc.scores[i] ?? 0]));
-  for (const f of data.flashpoints) {
-    if (!f.geo) continue;
-    const score = scoreOf.get(f.id) ?? 0;
-    const x = (f.geo[0] + 180) / g.cell, y = (g.lat0 - f.geo[1]) / g.cell;
-    const color = heatColor(score);
+  for (const p of pins) {
+    const x = (p.geo[0] + 180) / g.cell, y = (g.lat0 - p.geo[1]) / g.cell;
     const pin = svgEl('g', { class: 'pin', tabindex: 0 });
-    const r = 1.2 + (score / 100) * 3.2;
-    if (score >= 65) pin.append(svgEl('circle', { cx: x, cy: y, r, fill: color, class: 'ring' }));
-    const label = svgEl('text', { x: x + r + 0.8, y: y + 0.9, class: 'plabel' });
-    label.textContent = `${SHORT[f.id] ?? f.name} ${score}`;
+    if (p.ring) pin.append(svgEl('circle', { cx: x, cy: y, r: p.r, fill: p.color, class: 'ring' }));
+    const label = svgEl('text', { x: x + p.r + 0.8, y: y + 0.9, class: 'plabel' });
+    label.textContent = p.label;
     const title = svgEl('title');
-    title.textContent = `${f.name}: ${score}/100`;
+    title.textContent = p.title;
     pin.append(
-      svgEl('circle', { cx: x, cy: y, r, fill: color, 'fill-opacity': 0.85, stroke: '#000', 'stroke-width': 0.25 }),
+      svgEl('circle', { cx: x, cy: y, r: p.r, fill: p.color, 'fill-opacity': 0.85, stroke: '#000', 'stroke-width': 0.25 }),
       label,
       title,
     );
-    pin.addEventListener('click', () => openCard(f.id));
-    pin.addEventListener('keydown', (e) => { if (e.key === 'Enter') openCard(f.id); });
+    pin.addEventListener('click', p.onActivate);
+    pin.addEventListener('keydown', (e) => { if (e.key === 'Enter') p.onActivate(); });
     svg.append(pin);
   }
+}
+
+export const shortName = (id: string, name: string): string => SHORT[id] ?? name;
+
+export function renderMap(): void {
+  const data = getData();
+  const calc = getCalc();
+  const scoreOf = new Map(data.flashpoints.map((f, i) => [f.id, calc.scores[i] ?? 0]));
+  drawMap($<HTMLElement>('map') as unknown as SVGSVGElement, data.flashpoints.flatMap((f): Pin[] => {
+    if (!f.geo) return [];
+    const score = scoreOf.get(f.id) ?? 0;
+    return [{
+      geo: f.geo, r: 1.2 + (score / 100) * 3.2, color: heatColor(score), ring: score >= 65,
+      label: `${shortName(f.id, f.name)} ${score}`, title: `${f.name}: ${score}/100`, onActivate: () => openCard(f.id),
+    }];
+  }));
 
   $('globals').replaceChildren(
     el('span', { className: 'dim small', textContent: 'No fixed location:' }),

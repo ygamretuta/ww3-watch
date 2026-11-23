@@ -51,7 +51,7 @@
 
   <section>
     <h2>Hot spots <small>pin size and colour = current pressure · click a pin for details</small></h2>
-    <div class="mapwrap"><svg id="map" viewBox="0 0 180 72" role="img" aria-label="World map of flashpoints"></svg></div>
+    <div class="mapwrap"><svg id="map" class="worldmap" viewBox="0 0 180 72" role="img" aria-label="World map of flashpoints"></svg></div>
     <div class="chips" id="globals"></div>
   </section>
 
@@ -121,11 +121,15 @@
   <section class="clock" id="g-hero">
     <div class="label">Time bought by de-escalation</div>
     <div class="digits" aria-live="off">
+      <div><b id="g-y">--</b><span>years</span></div>
+      <i>:</i>
       <div><b id="g-d">---</b><span>days</span></div>
       <i>:</i>
       <div><b id="g-h">--</b><span>hours</span></div>
       <i>:</i>
       <div><b id="g-m">--</b><span>min</span></div>
+      <i>:</i>
+      <div><b id="g-s">--</b><span>sec</span></div>
     </div>
     <div class="meter">
       <div class="meter-bar"><div id="g-fill"></div></div>
@@ -134,30 +138,33 @@
         <span class="level" id="g-credit">--</span>
       </div>
       <div class="delta" id="g-without"></div>
+      <a class="delaynote" id="g-note" href="#pane-dark" hidden></a>
     </div>
-    <p class="disclaimer">Ceasefires, agreements, releases, aid deliveries and recovery news from the last 72 hours push the countdown back. Fresh stories count most. A deal announced today can still collapse tomorrow.</p>
-    <p class="g-brief" id="g-brief" hidden></p>
+    <p class="disclaimer">Concrete de-escalation from the last 72 hours pushes the countdown back. A deal announced today can still collapse tomorrow.</p>
+    <details class="vs" id="g-vs">
+      <summary id="g-vs-sum">How time is bought</summary>
+      <div class="vs-body" id="g-vs-body"></div>
+    </details>
   </section>
 
   <section>
-    <h2>Where diplomacy and aid are working <small>by theatre</small></h2>
-    <div class="theatres" id="g-theatres"></div>
+    <h2>Where it's working <small>pin size = number of signals · click a pin for details</small></h2>
+    <div class="mapwrap"><svg id="g-map" class="worldmap" viewBox="0 0 180 72" role="img" aria-label="World map of de-escalation signals"></svg></div>
+    <div class="chips" id="g-globals"></div>
   </section>
 
   <section>
-    <h2>Good news <small id="g-count"></small></h2>
-    <div class="chips" id="g-chips"></div>
-    <ul class="news" id="g-news"></ul>
-  </section>
-
-  <section>
-    <h2>Wins timeline <small id="g-tl-note"></small></h2>
-    <ul class="timeline" id="g-timeline"></ul>
+    <h2>Signals <small>by theatre, most active first</small></h2>
+    <div class="brief" id="g-strip">
+      <p class="brief-head" id="g-strip-head">Loading…</p>
+      <p class="brief-watch" id="g-brief" hidden></p>
+    </div>
+    <div class="grid" id="g-cards"></div>
   </section>
 
   <section>
     <details class="model">
-      <summary>How much credit should good news get? <small>dial it</small></summary>
+      <summary>Model settings <small>how much credit should good news get?</small></summary>
       <p class="dim small">
         At full signal strength, de-escalation takes this share off the risk index. The default is cautious:
         peace news is real, but fragile. Changes stay in this browser only.
@@ -169,6 +176,17 @@
       </div>
       <p class="dim small" id="g-sources"></p>
     </details>
+  </section>
+
+  <section>
+    <h2>Timeline <small id="g-tl-note"></small></h2>
+    <ul class="timeline" id="g-timeline"></ul>
+  </section>
+
+  <section>
+    <h2>Good news feed <small id="g-count"></small></h2>
+    <div class="chips" id="g-chips"></div>
+    <ul class="news" id="g-news"></ul>
   </section>
 </main>
 <footer>Good news is classified from headlines by AI when a key is set, and by keywords otherwise.</footer>

@@ -22,6 +22,7 @@ export function tick(): void {
   $('d-h').textContent = pad(h, 2);
   $('d-m').textContent = pad(m, 2);
   $('d-s').textContent = pad(s, 2);
+  $('m-time').textContent = `${y}y ${d}d ${pad(h, 2)}:${pad(m, 2)}:${pad(s, 2)}`;
 }
 
 export function renderClock(): void {
@@ -29,6 +30,7 @@ export function renderClock(): void {
   $('risk-pct').textContent = Math.round(calc.risk * 100) + '%';
   $('risk-pct').title = calc.credit > 0 ? `${Math.round(calc.rawRisk * 100)}% before the de-escalation credit` : '';
   $('level').textContent = calc.level;
+  $('m-risk').textContent = `${Math.round(calc.risk * 100)}% ${calc.level}`;
   $('custom').hidden = !isCustom();
   $('meter-fill').style.width = calc.risk * 100 + '%';
   const hot = heatColor(calc.risk * 100 + 15);

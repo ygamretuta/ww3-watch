@@ -6,7 +6,7 @@ import { renderContext, renderMap } from './context.ts';
 import { renderChips, renderClock, renderFlashpoints, renderModelPanel, renderNews, renderStatus, tick } from './dashboard.ts';
 import { $, errorMessage } from './dom.ts';
 import { initGood, renderCreditDial, renderGood, renderGoodHero } from './good.ts';
-import { initSplit } from './split.ts';
+import { initMiniBars, initSplit } from './split.ts';
 import { clearOverrides, hooks, recompute, state } from './state.ts';
 
 /** Repaint everything that depends on the model (after a slider moves). */
@@ -45,6 +45,7 @@ $('reset').onclick = () => {
 };
 
 initSplit();
+initMiniBars();
 initAlerts();
 initGood();
 setInterval(tick, 1000);

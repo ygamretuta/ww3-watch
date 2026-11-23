@@ -22,6 +22,8 @@ export function renderGoodHero(): void {
   $('g-d').textContent = pad(d, 3);
   $('g-h').textContent = pad(h, 2);
   $('g-m').textContent = pad(m, 2);
+  $('m-gtime').textContent = `+${d}d ${pad(h, 2)}h ${pad(m, 2)}m`;
+  $('m-gpct').textContent = `signal ${Math.round(data.mitigation * 100)}%`;
   $('g-pct').textContent = Math.round(data.mitigation * 100) + '%';
   $('g-fill').style.width = data.mitigation * 100 + '%';
   $('g-credit').textContent = `−${(calc.credit * 100).toFixed(1)}% of risk`;

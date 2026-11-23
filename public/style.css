@@ -239,6 +239,18 @@ body.split-page { background-image: none; }
 body.dragging { user-select: none; cursor: col-resize; }
 body.dragging iframe { pointer-events: none; }
 
+/* compact counter that sticks to the top of each pane once the big clock has scrolled away */
+.minibar-wrap { position: sticky; top: 0; height: 0; z-index: 20; }
+.minibar {
+  display: flex; align-items: center; gap: 12px; padding: 10px 24px; font-family: var(--mono); font-size: 13px;
+  background: var(--panel); border-bottom: 1px solid var(--line); color: var(--text);
+  transform: translateY(-110%); transition: transform .2s; box-shadow: 0 6px 18px #0004;
+}
+.minibar.show { transform: none; }
+.minibar b { color: var(--accent); font-size: 17px; letter-spacing: .04em; }
+.mini-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
+.mini-sep { flex: 1; }
+
 @media (min-width: 901px) {
   body.split-page { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
   body.split-page .top { width: 100%; max-width: none; padding: 12px 24px; box-sizing: border-box; flex: none; }

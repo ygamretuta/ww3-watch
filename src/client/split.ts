@@ -55,3 +55,12 @@ export function initSplit(): void {
 
   apply();
 }
+
+/** Show each pane's compact counter bar once its full clock has scrolled out of view. */
+export function initMiniBars(): void {
+  for (const [clock, bar] of [['clock', 'mini-dark'], ['g-hero', 'mini-light']] as const) {
+    new IntersectionObserver(([e]) => {
+      $(bar).classList.toggle('show', !!e && !e.isIntersecting && e.boundingClientRect.top < 0);
+    }).observe($(clock));
+  }
+}

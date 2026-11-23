@@ -99,6 +99,12 @@ h2 small { color: var(--dim); letter-spacing: .05em; text-transform: none; margi
 .moved { margin: 0 0 8px; font-size: 13px; color: var(--dim); font-style: italic; }
 .g-brief { margin: 10px 0 0; font-size: 13px; }
 .ghost { color: var(--dim); }
+.alertbox { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+.alertbox summary { cursor: pointer; font-size: 13px; color: var(--dim); }
+.alertbox[open] summary { margin-bottom: 10px; }
+.abadge { display: inline-block; margin: 0 0 8px; padding: 2px 8px; border-radius: 999px; font: 11px var(--mono); text-decoration: none; background: #ff3b3022; color: #ff6b61; border: 1px solid #ff3b3055; }
+.abadge.down { background: #4cd48a22; color: #4cd48a; border-color: #4cd48a55; }
+.abadge:hover { filter: brightness(1.2); }
 .alert-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
 .alerts { list-style: none; margin: 0; padding: 0; }
 .alert { display: flex; gap: 12px; padding: 9px 0 9px 12px; border-left: 2px solid #ff3b30; margin-left: 4px; font-size: 14px; }

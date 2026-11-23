@@ -47,17 +47,6 @@
   </section>
 
   <section>
-    <h2>Alerts <small>level changes, flashpoint spikes and 75+ crossings</small></h2>
-    <div class="alert-actions">
-      <button id="notify-btn">Enable browser notifications</button>
-      <button id="notify-test" class="ghost" hidden>Send test</button>
-      <span class="dim small" id="notify-state"></span>
-    </div>
-    <ul class="alerts" id="alerts"></ul>
-    <p class="dim small" id="webhook-note"></p>
-  </section>
-
-  <section>
     <h2>Hot spots <small>pin size and colour = current pressure · click a pin for details</small></h2>
     <div class="mapwrap"><svg id="map" viewBox="0 0 180 72" role="img" aria-label="World map of flashpoints"></svg></div>
     <div class="chips" id="globals"></div>
@@ -72,6 +61,16 @@
         <span class="dim small" id="brief-meta"></span>
         <button id="brief-regen" class="ghost">Regenerate</button>
       </div>
+      <details class="alertbox" id="alertbox">
+        <summary id="alert-sum">Alerts</summary>
+        <div class="alert-actions">
+          <button id="notify-btn">Enable browser notifications</button>
+          <button id="notify-test" class="ghost" hidden>Send test</button>
+          <span class="dim small" id="notify-state"></span>
+        </div>
+        <ul class="alerts" id="alerts"></ul>
+        <p class="dim small" id="webhook-note"></p>
+      </details>
     </div>
     <div class="grid" id="flashpoints"></div>
   </section>

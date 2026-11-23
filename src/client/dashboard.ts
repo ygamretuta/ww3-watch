@@ -1,6 +1,6 @@
 // The escalation side: countdown clock, flashpoint cards, model settings, intel feed, status line.
 
-import type { FlashpointApi } from '../shared/types.ts';
+import type { AlertRec, FlashpointApi } from '../shared/types.ts';
 import { $, ago, el, heatColor, pad, thumb } from './dom.ts';
 import { eff, getCalc, getData, hooks, isCustom, overrides, saveOverrides, state } from './state.ts';
 
@@ -64,11 +64,21 @@ function whyPanel(f: FlashpointApi, i: number): HTMLElement {
   return wrap;
 }
 
+function alertBadge(a: AlertRec): HTMLElement {
+  const label = a.kind === 'critical' ? 'Critical' : a.dir === 'down' ? 'Easing' : 'Spike';
+  return el('a', {
+    className: 'abadge ' + a.dir, href: `flashpoint.html?id=${encodeURIComponent(a.fp ?? '')}`, target: '_blank', rel: 'noopener',
+    title: a.body, textContent: `${a.dir === 'down' ? '▼' : '▲'} ${label} · ${ago(a.t)}`,
+  });
+}
+
 export function renderFlashpoints(): void {
   const data = getData();
   const calc = getCalc();
   const order = data.flashpoints.map((f, i) => ({ f, i })).sort((a, b) => (calc.scores[b.i] ?? 0) - (calc.scores[a.i] ?? 0));
   const moved = data.briefing?.lines ?? {};
+  const hot = new Map<string, AlertRec>(); // newest alert per flashpoint in the last 24h
+  for (const a of [...data.alerts].reverse()) if (a.fp && Date.now() - a.t < 864e5) hot.set(a.fp, a);
   const open = new Set([...document.querySelectorAll<HTMLElement>('.card details[open]')].map((d) => d.dataset.id));
   $('flashpoints').replaceChildren(...order.map(({ f, i }) => {
     const score = calc.scores[i] ?? 0;
@@ -84,6 +94,7 @@ export function renderFlashpoints(): void {
     card.append(
       thumb(f.img, f.name, c, 'banner', f.top[0]?.link),
       el('h3', {}, el('span', { textContent: f.name }), el('em', { textContent: String(score) })),
+      ...(hot.has(f.id) ? [alertBadge(hot.get(f.id) as AlertRec)] : []),
       el('div', { className: 'bar' }, fill),
       el('div', { className: 'meta', textContent: `news heat ${f.heat}% · ${f.mentions} headlines / 72h` }),
       ...(moved[f.id] ? [el('p', { className: 'moved', textContent: moved[f.id] })] : []),

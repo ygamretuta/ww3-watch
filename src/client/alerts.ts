@@ -55,8 +55,12 @@ function pushNew(alerts: AlertRec[]): void {
 function renderAlerts(): void {
   const data = getData();
   const list = data.alerts;
+  const recent = list.filter((a) => Date.now() - a.t < 864e5);
+  const latest = list[0];
+  $('alert-sum').textContent = `Alerts · ${recent.length ? `${recent.length} in the last 24h` : 'none in the last 24h'}`
+    + (latest ? ` — latest: ${latest.title} (${ago(latest.t)})` : '');
   $('alerts').replaceChildren(...(list.length
-    ? list.slice(0, 12).map((a) => {
+    ? list.slice(0, 8).map((a) => {
       const li = el('li', { className: 'alert ' + (a.dir || 'up') });
       li.append(
         el('span', { className: 'when', textContent: ago(a.t) }),

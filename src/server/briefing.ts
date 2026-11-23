@@ -60,7 +60,7 @@ type Parts = Pick<BriefingRec, 'headline' | 'watch' | 'deescalation' | 'lines'>;
 
 function templateParts(s: Snapshot): Parts {
   const d = s.changeVs24hPoints;
-  const change = d == null ? '' : d === 0 ? ', unchanged over 24 hours' : `, ${d > 0 ? 'up' : 'down'} ${Math.abs(d)} points over 24 hours`;
+  const change = d == null ? '' : d === 0 ? ', unchanged over 24 hours' : `, ${d > 0 ? 'up' : 'down'} ${Math.abs(d)} point${Math.abs(d) === 1 ? '' : 's'} over 24 hours`;
   const top = s.flashpoints.slice(0, 3).map((f) => `${f.name} (${f.score}/100)`);
   const days = s.deEscalation.daysAddedToCountdown;
   const story = s.deEscalation.topStories[0];
